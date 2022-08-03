@@ -1,0 +1,51 @@
+﻿@page "/"
+@using Huffman.Shared
+@inject HttpClient Http
+<PageTitle>Huffman Algorithm</PageTitle>
+<h1>Huffman Algorithm</h1>
+
+<label>Please Enter a String and press Encrypt button.</label>
+<input class="form-control" type="text" @onchange="@((e) => { Encodeinput=e.Value.ToString();})" placeholder="example: ababcbbbc"/>
+<button class="btn btn-primary" onclick="@(async ()=> await Encodehuffman())">Encrypt</button>
+<p hidden="@HideLabelEn">Answer : @responseEn</p>
+<hr>
+<label hidden="@HideInputDe">To decrypt, enter the encrypted string and press Decrypt</label>
+<input hidden="@HideInputDe" class="form-control" type="text" @onchange="@((e) => { Decodeinput=e.Value.ToString();})" placeholder="example: 0010010111101"/>
+<button hidden="@HideInputDe" class="btn btn-primary" onclick="@(async ()=> await Decodehuffman())">Decrypt</button>
+<p hidden="@HideLabelDe">Answer : @responseDe</p>
+
+
+@code {
+    private string responseEn;
+    private string responseDe;
+    private string Encodeinput { get; set; }
+    private string Decodeinput { get; set; }
+    private bool HideLabelEn   {get;set;} = true;
+    private bool HideLabelDe   {get;set;} = true;
+    private bool HideInputDe   {get;set;} = true;
+
+    public async Task Encodehuffman()
+    {
+        HideLabelEn = false;
+      
+        if (!string.IsNullOrWhiteSpace(Encodeinput))
+        {
+            using var res = await Http.PostAsJsonAsync("api/huffman/encode", Encodeinput);
+            responseEn = await res.Content.ReadAsStringAsync();
+            HideInputDe = false;
+        }
+        else
+            responseEn = "Please enter a string for encryption";
+    }
+    public async Task Decodehuffman()
+    {
+        HideLabelDe = false;      
+        if (!string.IsNullOrWhiteSpace(Decodeinput))
+        {
+            using var res = await Http.PostAsJsonAsync("api/huffman/decode", Decodeinput);
+            responseDe = await res.Content.ReadAsStringAsync();
+        }
+        else
+            responseDe = "Please enter a string to decrypt";
+    }
+}
